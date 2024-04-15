@@ -1,4 +1,4 @@
-# <font color="#ffa87f">Проектная работа "Веб-ларек"</font>
+# <font color="red">Проектная работа "Веб-ларек"</font>
 
 <font color="#808000">Стек:</font> HTML, SCSS, TS, Webpack
 
