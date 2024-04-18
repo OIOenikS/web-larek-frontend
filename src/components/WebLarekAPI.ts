@@ -1,4 +1,4 @@
-import { Api, ApiListResponse } from './base/api';
+import {Api, ApiListResponse} from './base/api';
 import {IProductItem} from "../types/index";
 import {IOrder, IOrderResult} from "../types";
 

@@ -8,7 +8,7 @@ interface IFormState {
     errors: string[];
 }
 
-export class Form<T> extends Component<IFormState> {
+export abstract class Form<T> extends Component<IFormState> {
     protected _submit: HTMLButtonElement;
     protected _errors: HTMLElement;
 
@@ -28,7 +28,6 @@ export class Form<T> extends Component<IFormState> {
         this.container.addEventListener('submit', (e: Event) => {
             e.preventDefault();
             this.events.emit(`${this.container.name}:submit`);
-            console.log(this.container.name)
         });
     }
 
@@ -37,7 +36,6 @@ export class Form<T> extends Component<IFormState> {
             field,
             value
         });
-        console.log(`${this.container.name}.${String(field)}:change`)
     }
 
     set valid(value: boolean) {

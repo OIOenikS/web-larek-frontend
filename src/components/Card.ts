@@ -74,7 +74,7 @@ export abstract class Card extends Component<ICard> {
         this.setText(this._description, value);
     }
 
-    get description() {
+    get description():string {
         return this._description.textContent || '';
     }
 
@@ -132,5 +132,8 @@ export class CardBasket extends Card {
         this._button = ensureElement<HTMLButtonElement>(`.card__button`, container);
         this._itemIndex = ensureElement<HTMLImageElement>(`.basket__item-index`, container);
     }
-
+    
+    set itemIndex(value:string) {
+        this.setText(this._itemIndex, value);;
+    } 
 }

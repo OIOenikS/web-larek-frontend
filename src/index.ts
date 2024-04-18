@@ -8,7 +8,7 @@ import {Page} from "./components/Page";
 import {CardBasket, CardCatalog, CardPreview} from "./components/Card";
 import {cloneTemplate, ensureElement} from "./utils/utils";
 import {IProductItem, IOrderForm, IContactsForm} from './types';
-import {Modal} from "./components/Popup";
+import {Modal} from "./components/Modal";
 import {Basket} from "./components/Basket";
 import {OrderForm, ContactsForm} from "./components/Form";
 import {Success} from "./components/Success";
@@ -47,8 +47,8 @@ const contactsForm = new ContactsForm(cloneTemplate(contactsFormTemplate), event
 // Поймали событие, сделали что нужно
 
 // Изменились элементы каталога
-events.on('items:changed', () => {
-    page.catalog = appData.catalog.map(item => {
+events.on('cards:changed', (cards:{catalog: IProductItem[]}) => {
+    page.catalog = cards.catalog.map(item => {
         const card = new CardCatalog(cloneTemplate(cardCatalogTemplate), {
             onClick: () => events.emit('card:select', item)
         });
@@ -61,56 +61,30 @@ events.on('items:changed', () => {
     });
 });
 
-//Открыть карточку тавара
+//Выбор карточки тавара
 events.on('card:select', (item: IProductItem) => {
-    appData.setPreview(item);
+    const card = new CardPreview(cloneTemplate(cardPreviewTemplate), {
+        onClick: () => {
+            appData.toggleOrderedLot(item.id, true);
+            page.counter = appData.order.items.length
+            modal.close();
+        }
+    });
+
+    modal.render({
+        content: card.render({
+            title: item.title,
+            image: item.image,
+            price: item.price,
+            category: item.category,
+            description: item.description,
+        })
+    });
 });
 
-// Изменен открытый выбранный лот
-events.on('preview:changed', (item: IProductItem) => {
-    //console.log(appData.getAddProductInBasket())
-    const showItem = (item: IProductItem) => {
-        const card = new CardPreview(cloneTemplate(cardPreviewTemplate), {
-            onClick: () => {
-                appData.toggleOrderedLot(item.id, true);
-                page.counter = appData.order.items.length
-                modal.close();
-            }
-        });
-        
-        modal.render({
-            content: card.render({
-                title: item.title,
-                image: item.image,
-                price: item.price,
-                category: item.category,
-                description: item.description,
-            })
-        });
-    };
 
-    if (item) {
-        api.getCardItem(item.id)
-            .then((result) => {
-                item.title = result.title,
-                item.image = result.image,
-                item.price = result.price,
-                item.category = result.category,
-                item.description = result.description,
-                console.log(item.category)
-                showItem(item);
-            })
-            .catch((err) => {
-                console.error(err);
-            })
-    } else {
-        modal.close();
-    }
-});
-
-//Открыть карзину
+//Открыть корзину
 events.on('basket:open', () => {
-
     basket.items = appData.getAddProductInBasket().map(item => {
         const card = new CardBasket(cloneTemplate(cardBasketTemplate), {
             onClick: () => {
@@ -132,10 +106,9 @@ events.on('basket:open', () => {
     });
 });
 
-// Когда нажимаем на кнопку карзины, то сохрапняется общая сумма в объект order открывается и форма для выбора способа доставки и ввода адреса доставки
+//Открытие модального окна с формой выбора способа оплаты и адреса доставки
 events.on('order:open', () => {
     appData.order.total = appData.getTotal();
-    console.log(appData.order.total);
     modal.render({
         content: orderForm.render({
             address: '',
@@ -145,19 +118,24 @@ events.on('order:open', () => {
     });
 });
 
-// Изменилось одно из полей формы для выбора способа доставки и указания адреса доставки. Почему одно поле???
+//Выбор способа оплаты
+events.on('buttonPayments:select', (button: {button: HTMLButtonElement}) => {
+    appData.setPaymentOrder(button.button.getAttribute('name'))
+});
+
+//Изменение значения адреса, при вводе в поле формы выбора способа оплаты и адреса доставки,
 events.on(/^order\..*:change/, (data: { field: keyof IOrderForm, value: string }) => {
     appData.setOrderField(data.field, data.value);
 });
 
-// Изменилось состояние валидации формы для выбора способа доставки и указания адреса доставки (ошибка!), поля формы не заполнены, кнопка submit деактивирована
-events.on('OrderformErrors:change', (errors: Partial<IOrderForm>) => {
+//Изменение состояния валидации формы выбора способа оплаты и адреса доставки, данных об ошибки 
+events.on('orderformErrors:change', (errors: Partial<IOrderForm>) => {
     const { address } = errors;
     orderForm.valid = !address;
     orderForm.errors = Object.values({address}).filter(i => !!i).join('; ');
 });
 
-// Когда мы нажимае на сабмит формы для ввода способа доставки, то сохраняем способ доставки и переходим к форме заполнения почты и телефона
+//Открытие модального окна с формой для ввода контактных данных
 events.on('order:submit', () => {
 
     modal.render({
@@ -170,25 +148,21 @@ events.on('order:submit', () => {
     })
 });
 
-// Изменилось одно из полей формы для ввода почты и телефона
+//Изменение значения email/телефона, при вводе в поле формы для ввода контактных данных
 events.on(/^contacts\..*:change/, (data: { field: keyof IContactsForm, value: string }) => {
     appData.setСontactsField(data.field, data.value);
 });
 
-// Изменилось состояние валидации формы для ввода email и телефона
+//Изменение состояния валидации формы для ввода контактных данных, данных об ошибки
 events.on('contactsFormErrors:change', (errors: Partial<IContactsForm>) => {
     const { email, phone } = errors;
     contactsForm.valid = !phone&&!email;
     contactsForm.errors = Object.values({phone, email}).filter(i => !!i).join('; ');
 });
 
-events.on('buttonPayments:select', (button: {button: HTMLButtonElement}) => {
-    appData.setPaymentOrder(button.button.getAttribute('name'))
-    console.log(appData.order)
-});
-
-// Когда мы нажимае на сабмит формы для ввода почты и тефона, то отправим запрос на сервер с данными зака
-events.on('contacts:submit', () => {
+///При нажатии кнопки "Оплатить" в форме для ввода контактных данных формируется запрос к серверу с данными заказа
+//При успешной отработки сервером запроса, открывается модальное окно с элементом Success
+events.on('ontacts:submit', () => {
     api.orderProduct(appData.order)
         .then((result) => {
             const success = new Success(cloneTemplate(successTemplate), {
@@ -213,7 +187,7 @@ events.on('modal:open', () => {
     page.locked = true;
 });
 
-// Разблокирем прокрутку страницы, если открыто модальное окно
+// Разблокирем прокрутку страницы, если закрыто модальное окно
 events.on('modal:close', () => {
     page.locked = false;
 });

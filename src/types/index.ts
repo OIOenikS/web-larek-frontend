@@ -1,28 +1,13 @@
-
-//Типизация объекта с данными о карточки, приходящего с сервера
 export interface IProductItem{
-  id: string;
-  description: string;
-  image: string;
-  title: string;
-  category: TCategoryProduct;
-  price?: number | null;
+    id: string;
+    description: string;
+    image: string;
+    title: string;
+    category: TCategoryProduct;
+    price: number | null;
 }
 
-//Тип для типизации поля category интерфейса ICard типизирующего объект с данными о продукте приходящими с сервера
 export type TCategoryProduct = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
-
-export interface IAppState {
-  catalog: IProductItem[];
-  //basket: string[];
-  //preview: string | null;
-  //order: IOrder | null;
-  //loading: boolean;
-}
-
-export type IBasketItem = Pick<IProductItem, 'id'>
-
-
 
 export interface IOrderForm {
     payment: string;
@@ -34,19 +19,32 @@ export interface IContactsForm {
     phone: string;
 }
 
-
-export type TIdProduct = Pick<IProductItem, 'id'>
-
 export interface IOrder extends IOrderForm, IContactsForm {
-  total: number;
-  items: string[];
+    total: number;
+    items: string[];
 }
 
-//Тип объкта содержащего ошибки и их значение
+export interface IOrderResult {
+    id: string;
+    total: number;
+}
+
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
-//После отправки запроса с данными зака, получаем ответ с объектом данного типа, при успешной отработки запрпоса сервером
-export interface IOrderResult {
-  id: string;
-  total: number;
+export interface IAppState {
+    catalog: IProductItem[];
+    order: IOrder;
+    preview: string | null;
+    formErrors: FormErrors;
+    toggleOrderedLot(id: string, isIncluded: boolean):void; 
+    clearBasket():void; 
+    setPaymentOrder(value:string):void; 
+    getTotal():number; 
+    setCatalog(items: IProductItem[]):void; 
+    setPreview(item: IProductItem):void; 
+    getAddProductInBasket():IProductItem[]; 
+    setOrderField(field: keyof IOrderForm, value: string):void; 
+    validateOrderForm():boolean;
+    setСontactsField(field: keyof IContactsForm, value: string): void; 
+    validateСontactsForm():boolean;
 }
