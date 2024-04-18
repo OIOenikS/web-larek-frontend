@@ -5,7 +5,7 @@ import {EventEmitter} from "./base/events";
 interface IBasketView {
     items: HTMLElement[];
     total: number;
-    selected: string[];
+    selected: number;
 }
 
 export class Basket extends Component<IBasketView> {
@@ -39,8 +39,8 @@ export class Basket extends Component<IBasketView> {
         }
     }
 
-    set selected(items: string[]) {
-        if (items.length) {
+    set selected(items: number) {
+        if (items) {
             this.setDisabled(this._button, false);
         } else {
             this.setDisabled(this._button, true);

@@ -6,6 +6,10 @@ export function isSelector(x: any): x is string {
     return (typeof x === "string") && x.length > 1;
 }
 
+export function formatNumber(x: number, sep = ' ') {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+}
+
 export function isEmpty(value: any): boolean {
     return value === null || value === undefined;
 }

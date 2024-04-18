@@ -13,6 +13,7 @@ export interface ICard {
     title: string;
     category: TCategoryProduct;
     price: number | null;
+    index: number;
 }
 
 export abstract class Card extends Component<ICard> {
@@ -132,8 +133,8 @@ export class CardBasket extends Card {
         this._button = ensureElement<HTMLButtonElement>(`.card__button`, container);
         this._itemIndex = ensureElement<HTMLImageElement>(`.basket__item-index`, container);
     }
-    
-    set itemIndex(value:string) {
-        this.setText(this._itemIndex, value);;
+
+    set index(value: number) {
+        this.setText(this._itemIndex, String(value));
     } 
 }

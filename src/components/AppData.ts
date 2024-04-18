@@ -22,13 +22,6 @@ export class AppState extends Model<IAppState> {
             this.order.items = _.without(this.order.items, id);
         }
     }
-
-    clearBasket():void {
-        this.order.items.forEach(id => {
-            this.toggleOrderedLot(id, false);
-            //this.catalog.find(it => it.id === id); на доработке
-        });
-    }
     
     setPaymentOrder(value:string):void {
         if (value === 'card') {
@@ -56,6 +49,10 @@ export class AppState extends Model<IAppState> {
 
         if (this.validateOrderForm()) {
         }
+    }
+
+    getCountItems():number {
+        return this.order.items.length;
     }
 
     validateOrderForm():boolean {
@@ -87,4 +84,11 @@ export class AppState extends Model<IAppState> {
         this.events.emit('contactsFormErrors:change', this.formErrors);
         return Object.keys(errors).length === 0;
     }
+
+    clearBasket() {
+        this.order.items.forEach(id => {
+            this.toggleOrderedLot(id, false);
+        });
+    }
+
 }

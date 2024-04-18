@@ -66,7 +66,7 @@ events.on('card:select', (item: IProductItem) => {
     const card = new CardPreview(cloneTemplate(cardPreviewTemplate), {
         onClick: () => {
             appData.toggleOrderedLot(item.id, true);
-            page.counter = appData.order.items.length
+            page.counter = appData.getCountItems();
             modal.close();
         }
     });
@@ -85,24 +85,29 @@ events.on('card:select', (item: IProductItem) => {
 
 //Открыть корзину
 events.on('basket:open', () => {
-    basket.items = appData.getAddProductInBasket().map(item => {
+
+    basket.items = appData.getAddProductInBasket().map((item, index) => {
         const card = new CardBasket(cloneTemplate(cardBasketTemplate), {
             onClick: () => {
             appData.toggleOrderedLot(item.id, false);
+            page.counter = appData.getCountItems();
             events.emit('basket:open')
             }
         });
+
         return card.render({
             title: item.title,
             price: item.price,
+            index: index + 1
         });
     });
 
-    basket.total = appData.getTotal();
-
     modal.render({
         content: 
-            basket.render()
+            basket.render({
+                total: appData.getTotal(),
+                //selected: string[]
+            })
     });
 });
 
@@ -162,19 +167,21 @@ events.on('contactsFormErrors:change', (errors: Partial<IContactsForm>) => {
 
 ///При нажатии кнопки "Оплатить" в форме для ввода контактных данных формируется запрос к серверу с данными заказа
 //При успешной отработки сервером запроса, открывается модальное окно с элементом Success
-events.on('ontacts:submit', () => {
+events.on('contacts:submit', () => {
     api.orderProduct(appData.order)
         .then((result) => {
             const success = new Success(cloneTemplate(successTemplate), {
                 onClick: () => {
+                    appData.clearBasket();
+                    page.counter = appData.getCountItems();
                     modal.close();
-                    //appData.clearBasket();
-                    events.emit('auction:changed');
                 }
             });
 
             modal.render({
-                content: success.render({})
+                content: success.render({
+                    total: result.total
+                })
             });
         })
         .catch(err => {
