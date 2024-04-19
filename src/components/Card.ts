@@ -1,18 +1,13 @@
 
 import {Component} from "./base/Components";
-import {TCategoryProduct} from "../types/index";
+import {IProductItem} from "../types/index";
 import {ensureElement,formatNumber} from "../utils/utils";
 
 interface ICardActions {
     onClick: (event: MouseEvent) => void;
 }
 
-export interface ICard {
-    description: string;
-    image: string;
-    title: string;
-    category: TCategoryProduct;
-    price: number | null;
+export interface ICard extends IProductItem {
     index: number;
 }
 

@@ -1,15 +1,12 @@
 import {Component} from "./base/Components";
 import {ensureElement,formatNumber} from "../utils/utils";
-
-interface ISuccess {
-    total: number;
-}
+import {TSuccess} from "../types/index";
 
 interface ISuccessActions {
     onClick: () => void;
 }
 
-export class Success extends Component<ISuccess> {
+export class Success extends Component<TSuccess> {
     protected _close: HTMLElement;
     protected _successDescription: HTMLElement;
 
