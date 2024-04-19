@@ -1,11 +1,11 @@
 import {Component} from "./base/Components";
-import {createElement, ensureElement} from "../utils/utils";
+import {createElement, ensureElement,formatNumber} from "../utils/utils";
 import {EventEmitter} from "./base/events";
 
 interface IBasketView {
     items: HTMLElement[];
     total: number;
-    selected: number;
+    selected: string[];
 }
 
 export class Basket extends Component<IBasketView> {
@@ -39,8 +39,8 @@ export class Basket extends Component<IBasketView> {
         }
     }
 
-    set selected(items: number) {
-        if (items) {
+    set selected(items: string[]) {
+        if (items.length) {
             this.setDisabled(this._button, false);
         } else {
             this.setDisabled(this._button, true);
@@ -48,6 +48,6 @@ export class Basket extends Component<IBasketView> {
     }
 
     set total(total: number) {
-        this.setText(this._total, `${total} синапсов`);
+        this.setText(this._total, `${formatNumber(total)} синапсов`);
     }
 }

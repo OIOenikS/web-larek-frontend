@@ -53,8 +53,8 @@ events.on('cards:changed', (cards:{catalog: IProductItem[]}) => {
             onClick: () => events.emit('card:select', item)
         });
         return card.render({
-            title: item.title,
             price: item.price,
+            title: item.title,
             image: item.image,
             category: item.category,
         });
@@ -65,12 +65,19 @@ events.on('cards:changed', (cards:{catalog: IProductItem[]}) => {
 events.on('card:select', (item: IProductItem) => {
     const card = new CardPreview(cloneTemplate(cardPreviewTemplate), {
         onClick: () => {
-            appData.toggleOrderedLot(item.id, true);
-            page.counter = appData.getCountItems();
-            modal.close();
+            if (!appData.isIncludedCard(item.id)) {
+                appData.toggleOrderedLot(item.id, true);
+                page.counter = appData.getCountItems();
+                card.buttonName = 'Удалить из корзины';
+            } else {
+                appData.toggleOrderedLot(item.id, false);
+                page.counter = appData.getCountItems();
+                card.buttonName = 'В корзины';
+            }
         }
     });
-
+    
+    card.statusButton = item.price;
     modal.render({
         content: card.render({
             title: item.title,
@@ -81,7 +88,6 @@ events.on('card:select', (item: IProductItem) => {
         })
     });
 });
-
 
 //Открыть корзину
 events.on('basket:open', () => {
@@ -96,8 +102,8 @@ events.on('basket:open', () => {
         });
 
         return card.render({
-            title: item.title,
             price: item.price,
+            title: item.title,
             index: index + 1
         });
     });
@@ -106,7 +112,7 @@ events.on('basket:open', () => {
         content: 
             basket.render({
                 total: appData.getTotal(),
-                //selected: string[]
+                selected: appData.order.items,
             })
     });
 });
@@ -125,7 +131,7 @@ events.on('order:open', () => {
 
 //Выбор способа оплаты
 events.on('buttonPayments:select', (button: {button: HTMLButtonElement}) => {
-    appData.setPaymentOrder(button.button.getAttribute('name'))
+    appData.setOrderField('payment', button.button.getAttribute('name'))
 });
 
 //Изменение значения адреса, при вводе в поле формы выбора способа оплаты и адреса доставки,
@@ -135,9 +141,9 @@ events.on(/^order\..*:change/, (data: { field: keyof IOrderForm, value: string }
 
 //Изменение состояния валидации формы выбора способа оплаты и адреса доставки, данных об ошибки 
 events.on('orderformErrors:change', (errors: Partial<IOrderForm>) => {
-    const { address } = errors;
-    orderForm.valid = !address;
-    orderForm.errors = Object.values({address}).filter(i => !!i).join('; ');
+    const { address, payment } = errors;
+    orderForm.valid = !address&&!payment;
+    orderForm.errors = Object.values({address, payment}).filter(i => !!i).join('; ');
 });
 
 //Открытие модального окна с формой для ввода контактных данных
@@ -205,5 +211,3 @@ api.getCardList()
     .catch(err => {
         console.error(err);
     });
-
-

@@ -1,7 +1,7 @@
 
 import {Component} from "./base/Components";
 import {TCategoryProduct} from "../types/index";
-import {ensureElement} from "../utils/utils";
+import {ensureElement,formatNumber} from "../utils/utils";
 
 interface ICardActions {
     onClick: (event: MouseEvent) => void;
@@ -43,28 +43,26 @@ export abstract class Card extends Component<ICard> {
         this.container.dataset.id = value;
     }
 
-    get id(): string {
-        return this.container.dataset.id || '';
-    }
-
     set title(value: string) {
         this.setText(this._title, value);
     }
 
-    get title(): string {
-        return this._title.textContent || '';
-    }
-
-    set price(value: string) {
+    set price(value: number) {
         if (value) {
-            this.setText(this._price, `${value} синапсов`);
+            this.setText(this._price, `${formatNumber(value)} синапсов`);
         } else {
             this.setText(this._price, '');
         }
     }
 
-    get price(): string {
-        return this._price.textContent || '';
+    set buttonName(value: string) {
+        this.setText(this._button, value);
+    }
+
+    set statusButton(value: number) {
+        if(!value) {
+            this.setDisabled(this._button, true);
+        }
     }
 
     set image(value: string) {
@@ -73,10 +71,6 @@ export abstract class Card extends Component<ICard> {
     
     set description(value: string) {
         this.setText(this._description, value);
-    }
-
-    get description():string {
-        return this._description.textContent || '';
     }
 
     set category(value: string) {
@@ -122,7 +116,7 @@ export class CardPreview extends Card {
         this._description = ensureElement<HTMLElement>('.card__text', container);
         this._button = ensureElement<HTMLButtonElement>(`.card__button`, container);
     }
-    
+
 }
 
 export class CardBasket extends Card {

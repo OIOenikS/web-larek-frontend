@@ -1,5 +1,4 @@
 import _ from "lodash";
-//import {formatNumber} from "../utils/utils";*/
 import {Model} from "./base/Model";
 import {IAppState, IProductItem, IOrder, IOrderForm, IContactsForm, FormErrors} from "../types/index";
 
@@ -22,17 +21,13 @@ export class AppState extends Model<IAppState> {
             this.order.items = _.without(this.order.items, id);
         }
     }
-    
-    setPaymentOrder(value:string):void {
-        if (value === 'card') {
-            this.order.payment = 'online';
-        } else {
-            this.order.payment = 'cash';
-        }
+
+    isIncludedCard(cardId:string):boolean {
+        return this.order.items.some((itemId) => itemId === cardId)
     }
 
     getTotal():number {
-        return this.order.items.reduce((a, c) => a + this.catalog.find(it => it.id === c).price, 0)
+        return this.order.items.reduce((a, c) => a + this.catalog.find(it => it.id === c).price, 0); 
     }
 
     setCatalog(items: IProductItem[]):void {
@@ -51,12 +46,11 @@ export class AppState extends Model<IAppState> {
         }
     }
 
-    getCountItems():number {
-        return this.order.items.length;
-    }
-
     validateOrderForm():boolean {
         const errors: typeof this.formErrors = {};
+        if (!this.order.payment) {
+            errors.payment = 'Необходимо указать способ оплаты';
+        }
         if (!this.order.address) {
             errors.address = 'Необходимо указать адрес';
         }
@@ -83,6 +77,10 @@ export class AppState extends Model<IAppState> {
         this.formErrors = errors;
         this.events.emit('contactsFormErrors:change', this.formErrors);
         return Object.keys(errors).length === 0;
+    }
+
+    getCountItems():number {
+        return this.order.items.length;
     }
 
     clearBasket() {

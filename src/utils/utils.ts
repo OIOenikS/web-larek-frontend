@@ -7,6 +7,7 @@ export function isSelector(x: any): x is string {
 }
 
 export function formatNumber(x: number, sep = ' ') {
+    if (String(x).match(/\d/g).length <= 4) return x.toString();
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
 }
 
