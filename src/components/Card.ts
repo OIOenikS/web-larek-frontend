@@ -1,6 +1,5 @@
-
 import {Component} from "./base/Components";
-import {IProductItem} from "../types/index";
+import {IProductItem,TCategoryProduct} from "../types/index";
 import {ensureElement,formatNumber} from "../utils/utils";
 
 interface ICardActions {
@@ -11,7 +10,7 @@ export interface ICard extends IProductItem {
     index: number;
 }
 
-export abstract class Card extends Component<ICard> {
+export class Card extends Component<ICard> {
     protected _title: HTMLElement;
     protected _price: HTMLElement;
     protected _image?: HTMLImageElement;
@@ -68,28 +67,12 @@ export abstract class Card extends Component<ICard> {
         this.setText(this._description, value);
     }
 
-    set category(value: string) {
+    set category(value: TCategoryProduct) {
         this.setText(this._category, value);
-        this.setColorCategory();
     }
 
-    get category(): string {
-        return this._category.textContent || '';
-    }
-    
-    setColorCategory() {
-        switch (this.category) {
-            case 'софт-скил': this.toggleClass(this._category, 'card__category_soft');
-                break;
-            case 'другое': this.toggleClass(this._category, 'card__category_other');
-                break;
-            case 'хард-скил': this.toggleClass(this._category, 'card__category_hard');
-                break;
-            case 'дополнительное': this.toggleClass(this._category, 'card__category_additional');
-                break;
-            case 'кнопка': this.toggleClass(this._category, 'card__category_button');
-                break;
-        };
+    setColorCategory(value: TCategoryProduct, settings: Record<TCategoryProduct, string>):void {
+        this.toggleClass(this._category, settings[value]);
     }
 }
 

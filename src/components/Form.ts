@@ -8,7 +8,7 @@ interface IFormState {
     errors: string[];
 }
 
-export abstract class Form<T> extends Component<IFormState> {
+export class Form<T> extends Component<IFormState> {
     protected _submit: HTMLButtonElement;
     protected _errors: HTMLElement;
 

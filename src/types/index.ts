@@ -38,3 +38,8 @@ export interface IOrderResult {
 }
 
 export type TSuccess = Pick<IOrderResult, 'total'>
+
+export type ApiListResponse<Type> = {
+    total: number,
+    items: Type[]
+};

@@ -7,6 +7,7 @@ import {AppState} from "./components/AppData";
 import {Page} from "./components/Page";
 import {CardBasket, CardCatalog, CardPreview} from "./components/Card";
 import {cloneTemplate, ensureElement} from "./utils/utils";
+import {settings} from "./utils/constants";
 import {IProductItem, IOrderForm, IContactsForm} from './types';
 import {Modal} from "./components/Modal";
 import {Basket} from "./components/Basket";
@@ -59,6 +60,8 @@ events.on('cards:changed', (cards:{catalog: IProductItem[]}) => {
         const card = new CardCatalog(cloneTemplate(cardCatalogTemplate), {
             onClick: () => events.emit('card:select', item)
         });
+
+        card.setColorCategory(item.category, settings);
         return card.render({
             price: item.price,
             title: item.title,
@@ -84,6 +87,7 @@ events.on('card:select', (item: IProductItem) => {
         }
     });
     
+    card.setColorCategory(item.category, settings)
     card.statusButton = item.price;
     modal.render({
         content: card.render({
