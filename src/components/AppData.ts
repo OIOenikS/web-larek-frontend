@@ -83,10 +83,17 @@ export class AppState extends Model<IAppState> {
         return this.order.items.length;
     }
 
-    clearBasket() {
+    clearBasket():void {
         this.order.items.forEach(id => {
             this.toggleOrderedLot(id, false);
         });
+    }
+
+    resetForm():void {
+        this.order.payment =  '';
+        this.order.address = '';
+        this.order.email = '';
+        this.order.phone = '';
     }
 
 }

@@ -1,5 +1,5 @@
 import {Component} from "./base/Components";
-import {IEvents} from "./base/events";
+import {IEvents} from "./base/Events";
 import {ensureElement} from "../utils/utils";
 
 interface IPage {

@@ -2,7 +2,7 @@ import './scss/styles.scss';
 
 import {WebLarekAPI} from "./components/WebLarekAPI";
 import {API_URL, CDN_URL} from "./utils/constants";
-import {EventEmitter} from "./components/base/events";
+import {EventEmitter} from "./components/base/Events";
 import {AppState} from "./components/AppData";
 import {Page} from "./components/Page";
 import {CardBasket, CardCatalog, CardPreview} from "./components/Card";
@@ -43,6 +43,13 @@ const basket = new Basket(cloneTemplate(basketTemplate), events);
 const orderForm = new OrderForm(cloneTemplate(orderFormTemplate), events);
 const contactsForm = new ContactsForm(cloneTemplate(contactsFormTemplate), events);
 
+
+function orderClear() {
+    appData.clearBasket();
+    page.counter = appData.getCountItems();
+    events.off('order:clear', orderClear);
+}
+
 // Дальше идет бизнес-логика
 // Поймали событие, сделали что нужно
 
@@ -72,7 +79,7 @@ events.on('card:select', (item: IProductItem) => {
             } else {
                 appData.toggleOrderedLot(item.id, false);
                 page.counter = appData.getCountItems();
-                card.buttonName = 'В корзины';
+                card.buttonName = 'В корзину';
             }
         }
     });
@@ -178,8 +185,7 @@ events.on('contacts:submit', () => {
         .then((result) => {
             const success = new Success(cloneTemplate(successTemplate), {
                 onClick: () => {
-                    appData.clearBasket();
-                    page.counter = appData.getCountItems();
+                    orderClear();
                     modal.close();
                 }
             });
@@ -189,6 +195,8 @@ events.on('contacts:submit', () => {
                     total: result.total
                 })
             });
+
+            events.on('order:clear', orderClear);
         })
         .catch(err => {
             console.error(err);
@@ -204,6 +212,11 @@ events.on('modal:open', () => {
 events.on('modal:close', () => {
     page.locked = false;
 });
+
+//Очищает вводимые данные полей, для активации валидации, после закрытия модального окна крестиком/кликом по оверлею
+events.on('form:reset', () => {
+    appData.resetForm();
+})
 
 // Получаем лоты с сервера
 api.getCardList()
